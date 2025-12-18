@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: flex; flex-direction: column; min-height: 100vh;">
+  <section class="scan-section" style="flex: 1;">
+    <div class="container">
+      <h2 class="section-title">Scan a Website</h2>
+      <p class="section-subtitle">Enter a URL to check if it's safe or potentially harmful</p>
+
+      <div class="scan-container">
+        <form action="{{ url_for('scan') }}" method="POST" class="scan-form">
+          <div class="input-group">
+            <i class="fas fa-globe input-icon"></i>
+            <input type="url" name="name" class="scan-input" placeholder="Enter URL (http:// or https://)" required>
+            <button type="submit" class="btn-scan">
+              <i class="fas fa-search"></i> Scan URL
+            </button>
+          </div>
+        </form>
+
+        {% if name %}
+        <div class="result-container">
+          <div class="result-card {% if name[3] %}safe{% else %}unsafe{% endif %}">
+            <div class="result-header">
+              <i class="fas fa-{% if name[3] %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
+              <h3>Scan Result</h3>
+              {% if not name[3] %}
+              <div class="warning-badge">
+                <i class="fas fa-exclamation-triangle"></i> Warning: Potential Phishing Site
+              </div>
+              {% endif %}
+            </div>
+            <div class="result-body">
+              <p class="result-url">{{ name[0] }}</p>
+              <h4 class="result-status">Website is {{ name[1] }} to use</h4>
+              {% if trust_score is defined %}
+              <div class="trust-score-container">
+                <h4>Trust Score</h4>
+                <div class="trust-score">
+                  <div class="score-bar" style="width: {{ trust_score }}%;">
+                    <span class="score-text">{{ trust_score }}%</span>
+                  </div>
+                </div>
+                <p class="score-description">
+                  {% if trust_score >= 80 %}
+                    This website has a high trust score and appears to be reliable.
+                  {% elif trust_score >= 50 %}
+                    This website has a moderate trust score. Exercise normal caution.
+                  {% else %}
+                    This website has a low trust score. Be cautious when interacting with it.
+                  {% endif %}
+                </p>
+              </div>
+              {% endif %}
+
+              {% if recommendations %}
+              <div class="recommendations-container">
+                <h4>Safe Alternatives & Recommendations</h4>
+                <ul class="recommendations-list">
+                  {% for rec in recommendations %}
+                  <li>{{ rec }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+
+              <div class="action-buttons">
+                <button class="btn-visit {% if name[3] %}safe-btn{% else %}unsafe-btn{% endif %}" onclick="window.open('{{ name[0] }}')" target="_blank">
+                  {{ name[2] }}
+                </button>
+                <a href="{{ url_for('download_report', url=name[0]) }}" class="btn-download" target="_blank">
+                  <i class="fas fa-download"></i> Download Report
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  
+{% endblock %}

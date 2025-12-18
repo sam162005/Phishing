@@ -1,0 +1,2 @@
+- [x] Remove "Use Cases" nav item from templates/base.html
+- [x] Remove /usecases route from app.py

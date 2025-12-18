@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1 class="hero-title">Welcome to Web Safety Assistant</h1>
+      <p class="hero-subtitle">Protect yourself from phishing sites, fake reviews, and misleading claims using our AI-powered tool.</p>
+      <div class="hero-buttons">
+        <a href="{{ url_for('scan') }}" class="btn btn-primary">Start Scanning <i class="fas fa-arrow-right"></i></a>
+        <a href="{{ url_for('about') }}" class="btn btn-secondary">Learn More</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <div class="hero-shield"><i class="fas fa-shield-alt"></i></div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2 class="section-title">Our Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-link"></i></div>
+        <h3>Scan a Website</h3>
+        <p>Check if a URL is safe or phishing using advanced AI algorithms</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-comments"></i></div>
+        <h3>Analyze Text/Review</h3>
+        <p>Detect fake or spam reviews with machine learning technology</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

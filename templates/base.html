@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title if title else "Web Safety Assistant" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='trust-score.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='scan-enhancements.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-shield-alt"></i>
+        <span>SecureSurf</span>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="{{ url_for('home') }}" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="{{ url_for('scan') }}" class="nav-link"><i class="fas fa-search"></i> Scan</a></li>
+        <li><a href="{{ url_for('analyze') }}" class="nav-link"><i class="fas fa-chart-line"></i> Analyze</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>SecureSurf &copy; 2025. All Rights Reserved</p>
+    </div>
+  </footer>
+</body>
+</html>

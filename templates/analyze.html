@@ -1,0 +1,711 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="analyze-section">
+  <div class="container">
+    <h2 class="section-title">🧠 Fake Review / Spam Content Detector</h2>
+    <p class="section-subtitle">Detect whether a review or comment is genuine or bot-generated</p>
+
+    <div class="feature-card-large">
+      <form method="POST" action="/analyze" class="analyze-form">
+        <label for="review_text">Enter Review or Comment Text:</label>
+        <textarea
+          id="review_text"
+          name="review_text"
+          rows="5"
+          placeholder="Paste review or comment here..."
+          required
+        >{{ text if text else '' }}</textarea>
+        <button type="submit" class="btn btn-primary">Analyze Review</button>
+      </form>
+    </div>
+
+    {% if result %}
+    <div class="result-card">
+      <h3 class="result-title">{{ result }}</h3>
+      <p><strong>Confidence:</strong> {{ confidence }}%</p>
+      <p><strong>Reason:</strong> {{ reason }}</p>
+
+      {% if analysis %}
+      <!-- Text Analytics Dashboard -->
+      <div class="analytics-dashboard">
+        <h4 class="analytics-title">📊 Text Analytics Dashboard</h4>
+
+        <div class="analytics-grid">
+          <!-- Basic Metrics -->
+          <div class="metric-card">
+            <h5>📏 Basic Metrics</h5>
+            <div class="metric-item">
+              <span class="metric-label">Word Count:</span>
+              <span class="metric-value">{{ analysis.basic_metrics.word_count }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Sentence Count:</span>
+              <span class="metric-value">{{ analysis.basic_metrics.sentence_count }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Character Count:</span>
+              <span class="metric-value">{{ analysis.basic_metrics.char_count }}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Avg Words/Sentence:</span>
+              <span class="metric-value">{{ analysis.basic_metrics.avg_words_per_sentence }}</span>
+            </div>
+          </div>
+
+          <!-- Readability -->
+          <div class="metric-card">
+            <h5>📖 Readability</h5>
+            <div class="readability-score">
+              <div class="score-circle" style="--score: {{ analysis.readability.score }}%">
+                <span class="score-number">{{ analysis.readability.score }}</span>
+              </div>
+              <div class="score-info">
+                <div class="score-level">{{ analysis.readability.level }}</div>
+                <div class="score-desc">Flesch Reading Ease</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sentiment Analysis -->
+          <div class="metric-card">
+            <h5>😊 Sentiment Analysis</h5>
+            <div class="sentiment-display">
+              <div class="sentiment-emoji">
+                {% if analysis.sentiment.label == 'positive' %}😊
+                {% elif analysis.sentiment.label == 'negative' %}😔
+                {% else %}😐{% endif %}
+              </div>
+              <div class="sentiment-details">
+                <div class="sentiment-label">{{ analysis.sentiment.label|title }}</div>
+                <div class="sentiment-polarity">Polarity: {{ analysis.sentiment.polarity }}</div>
+                <div class="sentiment-subjectivity">Subjectivity: {{ analysis.sentiment.subjectivity }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Language Detection -->
+          <div class="metric-card">
+            <h5>🌍 Language</h5>
+            <div class="language-info">
+              <div class="language-flag">{{ analysis.language[:2]|upper }}</div>
+              <div class="language-name">{{ analysis.language }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spam Analysis -->
+        <div class="spam-analysis">
+          <h5>🚨 Spam Analysis</h5>
+          <div class="spam-bar">
+            <div class="spam-fill" style="width: {{ analysis.spam_analysis.density }}%"></div>
+          </div>
+          <div class="spam-details">
+            <span>Spam Density: {{ analysis.spam_analysis.density }}%</span>
+            <span>Spam Words: {{ analysis.spam_analysis.spam_words }}/{{ analysis.spam_analysis.total_words }}</span>
+          </div>
+        </div>
+
+        <!-- Advanced Detection -->
+        {% if analysis.advanced_detection.ai_generated_patterns %}
+        <div class="ai-patterns">
+          <h5>🤖 AI-Generated Patterns Detected</h5>
+          <ul class="patterns-list">
+            {% for pattern in analysis.advanced_detection.ai_generated_patterns %}
+            <li class="pattern-item">{{ pattern }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if analysis.advanced_detection.duplicate_content.is_duplicate %}
+        <div class="duplicate-alert">
+          <h5>⚠️ Duplicate Content Detected</h5>
+          <p>Similarity: {{ analysis.advanced_detection.duplicate_content.confidence }}%</p>
+        </div>
+        {% endif %}
+
+        <!-- Word Frequency -->
+        {% if analysis.word_frequency %}
+        <div class="word-frequency">
+          <h5>📈 Top Words</h5>
+          <div class="word-cloud">
+            {% for word, count in analysis.word_frequency[:10] %}
+            <span class="word-item" style="font-size: {{ 12 + count * 2 }}px;">{{ word }} ({{ count }})</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="analyzed-text">
+        <p><strong>Input Text:</strong></p>
+        <blockquote>{{ text }}</blockquote>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  .analyze-section {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+    color: #333;
+    text-align: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .analyze-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(103, 58, 183, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(92, 107, 192, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .section-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #5c6bc0 0%, #7e57c2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleGlow 3s ease-in-out infinite;
+  }
+
+  @keyframes titleGlow {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(92, 107, 192, 0.2)); }
+    50% { filter: drop-shadow(0 0 30px rgba(92, 107, 192, 0.3)); }
+  }
+
+  .section-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+
+  .feature-card-large {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(92, 107, 192, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-top: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(92, 107, 192, 0.1);
+  }
+
+  .feature-card-large:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 48px rgba(92, 107, 192, 0.25),
+                0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .analyze-form label {
+    display: block;
+    text-align: left;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    color: #5c6bc0;
+    font-weight: 600;
+  }
+
+  .analyze-form textarea {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(92, 107, 192, 0.2);
+    outline: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    resize: vertical;
+    font-size: 16px;
+    margin-bottom: 20px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    min-height: 140px;
+  }
+
+  .analyze-form textarea:focus {
+    border-color: #5c6bc0;
+    box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.1);
+  }
+
+  .analyze-form textarea::placeholder {
+    color: #999;
+  }
+
+  .analyze-form button {
+    background: linear-gradient(135deg, #5c6bc0 0%, #7e57c2 100%);
+    color: #fff;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(92, 107, 192, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .analyze-form button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .analyze-form button:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .analyze-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(92, 107, 192, 0.4);
+  }
+
+  .analyze-form button:active {
+    transform: translateY(0);
+  }
+
+  .result-card {
+    margin-top: 50px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 35px;
+    border-radius: 24px;
+    border-left: 5px solid #5c6bc0;
+    text-align: left;
+    box-shadow: 0 8px 32px rgba(92, 107, 192, 0.15);
+    animation: slideUp 0.5s ease-out;
+    border: 1px solid rgba(92, 107, 192, 0.1);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .result-title {
+    font-size: 1.8rem;
+    color: #5c6bc0;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .result-card p {
+    margin: 12px 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  .result-card strong {
+    color: #5c6bc0;
+    font-weight: 600;
+  }
+
+  .analyzed-text {
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(92, 107, 192, 0.2);
+  }
+
+  blockquote {
+    background: rgba(232, 234, 246, 0.6);
+    border-left: 4px solid #5c6bc0;
+    padding: 16px 20px;
+    color: #555;
+    font-style: italic;
+    border-radius: 12px;
+    margin: 15px 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Analytics Dashboard Styles */
+  .analytics-dashboard {
+    margin: 30px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(92, 107, 192, 0.1);
+  }
+
+  .analytics-title {
+    color: #5c6bc0;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .metric-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(92, 107, 192, 0.1);
+  }
+
+  .metric-card h5 {
+    color: #5c6bc0;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .metric-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 4px 0;
+  }
+
+  .metric-label {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .metric-value {
+    color: #333;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  /* Readability Score */
+  .readability-score {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .score-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #5c6bc0 0% var(--score),
+      #e0e0e0 var(--score) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .score-circle::before {
+    content: '';
+    width: 45px;
+    height: 45px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  .score-number {
+    position: relative;
+    z-index: 1;
+    font-weight: 700;
+    color: #5c6bc0;
+    font-size: 0.9rem;
+  }
+
+  .score-info {
+    flex: 1;
+  }
+
+  .score-level {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+  }
+
+  .score-desc {
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  /* Sentiment Analysis */
+  .sentiment-display {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .sentiment-emoji {
+    font-size: 2rem;
+  }
+
+  .sentiment-details {
+    flex: 1;
+  }
+
+  .sentiment-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .sentiment-polarity,
+  .sentiment-subjectivity {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  /* Language Detection */
+  .language-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .language-flag {
+    background: #5c6bc0;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+
+  .language-name {
+    color: #333;
+    font-weight: 500;
+  }
+
+  /* Spam Analysis */
+  .spam-analysis {
+    margin: 25px 0;
+    padding: 20px;
+    background: rgba(255, 248, 248, 0.8);
+    border-radius: 12px;
+    border-left: 4px solid #ff6b6b;
+  }
+
+  .spam-analysis h5 {
+    color: #d63031;
+    margin-bottom: 15px;
+  }
+
+  .spam-bar {
+    width: 100%;
+    height: 12px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .spam-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b6b 0%, #ff8e53 100%);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+
+  .spam-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  /* AI Patterns */
+  .ai-patterns {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 250, 240, 0.8);
+    border-radius: 12px;
+    border-left: 4px solid #ffa726;
+  }
+
+  .ai-patterns h5 {
+    color: #f57c00;
+    margin-bottom: 10px;
+  }
+
+  .patterns-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .pattern-item {
+    padding: 6px 0;
+    color: #666;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 167, 38, 0.2);
+  }
+
+  .pattern-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Duplicate Alert */
+  .duplicate-alert {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 243, 243, 0.8);
+    border-radius: 12px;
+    border-left: 4px solid #e74c3c;
+  }
+
+  .duplicate-alert h5 {
+    color: #c0392b;
+    margin-bottom: 8px;
+  }
+
+  .duplicate-alert p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  /* Word Frequency */
+  .word-frequency {
+    margin: 25px 0;
+    padding: 20px;
+    background: rgba(248, 250, 255, 0.8);
+    border-radius: 12px;
+    border-left: 4px solid #5c6bc0;
+  }
+
+  .word-frequency h5 {
+    color: #5c6bc0;
+    margin-bottom: 15px;
+  }
+
+  .word-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .word-item {
+    background: rgba(92, 107, 192, 0.1);
+    color: #5c6bc0;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .section-title {
+      font-size: 2rem;
+    }
+
+    .feature-card-large,
+    .result-card {
+      padding: 25px;
+    }
+
+    .analyze-form button {
+      width: 100%;
+    }
+
+    .analytics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .readability-score,
+    .sentiment-display {
+      flex-direction: column;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .spam-details {
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .word-cloud {
+      justify-content: flex-start;
+    }
+  }
+</style>
+
+<script>
+  // Real-time text analysis
+  document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('review_text');
+    let analysisTimeout;
+
+    textarea.addEventListener('input', function() {
+      clearTimeout(analysisTimeout);
+      analysisTimeout = setTimeout(() => {
+        const text = textarea.value.trim();
+        if (text.length > 10) { // Only analyze if text is substantial
+          fetch('/api/analyze_text', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: text })
+          })
+          .then(response => response.json())
+          .then(data => {
+            updateRealTimeAnalysis(data);
+          })
+          .catch(error => {
+            console.error('Real-time analysis error:', error);
+          });
+        }
+      }, 1000); // Wait 1 second after user stops typing
+    });
+
+    function updateRealTimeAnalysis(data) {
+      // Update basic metrics if they exist
+      const wordCount = data.basic_metrics?.word_count || 0;
+      const sentenceCount = data.basic_metrics?.sentence_count || 0;
+
+      // You could add real-time indicators here
+      console.log('Real-time analysis:', data);
+    }
+  });
+</script>
+{% endblock %}

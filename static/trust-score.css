@@ -1,0 +1,44 @@
+/* Trust Score Styles */
+.trust-score-container {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: var(--light-bg);
+    border-radius: 8px;
+}
+
+.trust-score-container h4 {
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.trust-score {
+    background-color: #e2e8f0;
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.score-bar {
+    height: 100%;
+    border-radius: 12px;
+    transition: width 0.3s ease;
+    position: relative;
+    background: linear-gradient(to right, var(--danger-color) 0%, var(--warning-color) 50%, var(--success-color) 100%);
+}
+
+.score-text {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.score-description {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-top: 10px;
+}

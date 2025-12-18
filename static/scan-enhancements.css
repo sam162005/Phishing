@@ -1,0 +1,121 @@
+/* Warning Badge */
+.warning-badge {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.warning-badge i {
+    font-size: 1em;
+}
+
+/* Recommendations Container */
+.recommendations-container {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: var(--light-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.recommendations-container h4 {
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.recommendations-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recommendations-list li {
+    padding: 5px 0;
+    color: var(--text-secondary);
+    position: relative;
+    padding-left: 20px;
+}
+
+.recommendations-list li:before {
+    content: "✓";
+    color: var(--success-color);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-download {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.btn-download:hover {
+    background-color: var(--primary-hover);
+    text-decoration: none;
+    color: white;
+}
+
+.btn-download i {
+    font-size: 1em;
+}
+
+/* Trust Score Color Coding */
+.trust-score-container .score-bar {
+    transition: all 0.3s ease;
+}
+
+.trust-score-container .score-bar.high-trust {
+    background: linear-gradient(to right, var(--success-color), var(--success-color));
+}
+
+.trust-score-container .score-bar.medium-trust {
+    background: linear-gradient(to right, var(--warning-color), var(--warning-color));
+}
+
+.trust-score-container .score-bar.low-trust {
+    background: linear-gradient(to right, var(--danger-color), var(--danger-color));
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn-download {
+        text-align: center;
+        justify-content: center;
+    }
+
+    .warning-badge {
+        margin-left: 0;
+        margin-top: 10px;
+        display: block;
+        text-align: center;
+    }
+}
