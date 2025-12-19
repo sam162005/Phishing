@@ -6,8 +6,8 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download required NLTK data
-RUN python -m nltk.downloader punkt stopwords wordnet
+# Download required NLTK + TextBlob data
+RUN python -m nltk.downloader punkt stopwords wordnet averaged_perceptron_tagger
 
 COPY . .
 
