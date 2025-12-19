@@ -19,12 +19,13 @@ app = Flask(__name__)
 # Load Models
 # ---------------------------
 # Phishing detection model
+# Phishing detection model
 with open("newmodel.pkl", "rb") as file:
     gbc = pickle.load(file)
 
-# Fake Review Detection model
-with open("fake_review_model.pkl", "rb") as f:
-    fake_review_model = pickle.load(f)
+# Fake Review Detection model (using same model file)
+fake_review_model = gbc
+
 
 # TF-IDF Vectorizer for text model
 with open("vectorizer.pkl", "rb") as f:
